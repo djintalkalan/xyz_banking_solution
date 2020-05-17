@@ -4,11 +4,9 @@ import { connect } from "react-redux";
 import { history } from '../../routes';
 import CanvasJSReact from '../../assets/canvasjs.react';
 import AccountList from '../../constants/AccountList';
-var CanvasJSChart = CanvasJSReact.CanvasJSChart;
-
-
-//Open console and perform an action on page
-
+import TransactionsList from '../../constants/TransactionsList';
+import moment from 'moment'
+let CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
 const options = {
     animationEnabled: true,
@@ -17,26 +15,37 @@ const options = {
     title: {
         text: "Column Chart With Index"
     },
+    axisY: [{
+        title: "Order",
+        lineColor: "#C24642",
+        tickColor: "#C24642",
+        labelFontColor: "#C24642",
+        titleFontColor: "#C24642",
+        suffix: "k"
+    }],
+    axisX: [{
+        title: "Months",
+        lineColor: "#C24642",
+        tickColor: "#C24642",
+        labelFontColor: "#C24642",
+        titleFontColor: "#C24642",
+    }],
     data: [{
         type: "line", //change type to bar, line, area, pie, etc
         //indexLabel: "{y}", //Shows y value on all Data Points
         indexLabelFontColor: "#5A5757",
         indexLabelPlacement: "outside",
         dataPoints: [
-            { x: 10, y: 71 },
-            { x: 20, y: 55 },
-            { x: 30, y: 50 },
-            { x: 40, y: 65 },
-            { x: 50, y: 71 },
-            { x: 60, y: 68 },
-            { x: 70, y: 38 },
-            { x: 80, y: 92, indexLabel: "Highest" },
-            { x: 90, y: 54 },
-            { x: 100, y: 60 },
-            { x: 110, y: 21 },
-            { x: 120, y: 49 },
-            { x: 130, y: 36 }
         ]
+    }, {
+        type: "line", //change type to bar, line, area, pie, etc
+        //indexLabel: "{y}", //Shows y value on all Data Points
+        indexLabelFontColor: "#5A5757",
+        indexLabelPlacement: "outside",
+
+        dataPoints: [
+        ]
+
     }]
 }
 
@@ -44,37 +53,87 @@ class DashBoard extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            accounts: [
-                {
-                    accountId: "120",
-                    accountNumber: "1516545678",
-                    accountType: "Savings",
-                    balance: "200000"
-                },
-                {
-                    accountId: "121",
-                    accountNumber: "1516545690",
-                    accountType: "Current",
-                    balance: "1000000"
-                }
-            ]
+            accountList: [],
+            selectedIndex: 0,
+            selectedYear: 2020,
+            toogle: false
         }
-
-
-
+        this.chart = null
     }
 
     componentWillMount() {
         console.log(this.state.userDataReducer)
         const { customerId } = this.props.userDataReducer
-
         const accountList = AccountList.filter((item, index) => {
             return item.customerId == customerId
         })
-
         this.setState({ accountList })
+    }
+    componentDidMount() {
+        this.setTransactionList(this.state.accountList[0])
+    }
 
-
+    setTransactionList(selectedItem) {
+        const debitedList = []
+        const creditedList = TransactionsList.filter((item, i) => {
+            if (item.accountId == selectedItem.accountId && item.transactionType == "Debited") {
+                debitedList.push(item)
+            }
+            return item.accountId == selectedItem.accountId && item.transactionType == "Credited"
+        })
+        console.log("debitedList:", debitedList)
+        console.log("creditedList:", creditedList)
+        let dataPointsDebited = []
+        let dataPointsCredited = []
+        debitedList.forEach((element, index) => {
+            if (moment(element.date).format("YYYY") == this.state.selectedYear) {
+                let found = false
+                //checking if any transaction added on same date
+                dataPointsDebited.some((item, index) => {
+                    if (JSON.stringify(item.x) == JSON.stringify(moment(element.date).toDate()) && item.y != null) {
+                        //Here found a transaction of same date and we will add our amount at this date
+                        dataPointsDebited[index].y = parseFloat(dataPointsDebited[index].y) + (parseFloat(element.amount) / parseFloat(1000))
+                        // set found variable true
+                        found = true
+                        // exit from Array.some because we found our amount and already updated amount at founded date
+                        return true;
+                    }
+                })
+                if (found == false) {
+                    //We Itrate points array an no entry found for required date so we creating new entry
+                    dataPointsDebited.push({
+                        x: moment(element.date).toDate(),
+                        y: (parseFloat(element.amount) / parseFloat(1000))
+                    })
+                }
+            }
+        });
+        creditedList.forEach((element, index) => {
+            if (moment(element.date).format("YYYY") == this.state.selectedYear) {
+                let found = false
+                dataPointsCredited.some((item, index) => {
+                    if (JSON.stringify(item.x) == JSON.stringify(moment(element.date).toDate()) && item.y != null) {
+                        dataPointsCredited[index].y = parseFloat(item.y) + (parseFloat(element.amount) / parseFloat(1000))
+                        found = true
+                        return true;
+                    }
+                })
+                if (found == false) {
+                    dataPointsCredited.push({
+                        x: moment(element.date).toDate(),
+                        y: parseFloat(element.amount) / parseFloat(1000)
+                    })
+                }
+            }
+        });
+        console.log("dataPointsCredited", dataPointsCredited)
+        console.log("dataPointsDebited", dataPointsDebited)
+        options.data[0].dataPoints = dataPointsDebited
+        options.data[1].dataPoints = dataPointsCredited
+        if (this.chart != null) {
+            this.chart.options = options
+            this.chart.render()
+        }
     }
 
     render() {
@@ -84,7 +143,7 @@ class DashBoard extends Component {
                     <div className="inner">
                         <div className="row">
                             <div className="col-md-12 pt20">
-                                <CanvasJSChart options={options} />
+                                <CanvasJSChart onRef={(ref) => this.chart = ref} options={options} />
                             </div>
                         </div>
                         <div className="row pt40">
@@ -113,8 +172,8 @@ class DashBoard extends Component {
                                     </thead>
                                     <tbody>
                                         {
-                                            this.state.accounts.map((item, index) => (
-                                                <tr>
+                                            this.state.accountList.map((item, index) => (
+                                                <tr key={index} onClick={() => { this.setState({ selectedIndex: index }); this.setTransactionList(item) }} style={{ backgroundColor: this.state.selectedIndex == index ? '#04ff0047' : null }}>
                                                     <th scope="row">{index + 1}</th>
                                                     <td>{item.accountNumber}</td>
                                                     <td>{item.accountType}</td>

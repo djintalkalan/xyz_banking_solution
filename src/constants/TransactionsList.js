@@ -296,5 +296,14 @@ export default [
         accountId: "123",
         date: "2020-04-04"
     },
+    {
+        transactionId: "9",
+        baneficiary: "State Bank of india",
+        amount: "20000",
+        transactionType: "Credited",
+        closingAmount: "395000",
+        accountId: "120",
+        date: "2020-04-04"
+    },
 
 ]
