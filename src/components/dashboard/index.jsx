@@ -16,33 +16,37 @@ const options = {
         text: "Column Chart With Index"
     },
     axisY: [{
-        title: "Order",
-        lineColor: "#C24642",
-        tickColor: "#C24642",
-        labelFontColor: "#C24642",
-        titleFontColor: "#C24642",
+        title: "Amount",
+        labelFontColor: "#3f51b5",
+        titleFontColor: "#3f51b5",
         suffix: "k"
     }],
     axisX: [{
         title: "Months",
-        lineColor: "#C24642",
-        tickColor: "#C24642",
-        labelFontColor: "#C24642",
-        titleFontColor: "#C24642",
+        // lineColor: "#3f51b5",
+        // tickColor: "#3f51b5",
+        // labelFontColor: "#3f51b5",
+        // titleFontColor: "#3f51b5",
     }],
     data: [{
         type: "line", //change type to bar, line, area, pie, etc
         //indexLabel: "{y}", //Shows y value on all Data Points
         indexLabelFontColor: "#5A5757",
+        name:'Debited Amout',
         indexLabelPlacement: "outside",
+        yValueFormatString: "#,##0.0K",
+        showInLegend: true,
         dataPoints: [
         ]
     }, {
         type: "line", //change type to bar, line, area, pie, etc
         //indexLabel: "{y}", //Shows y value on all Data Points
         indexLabelFontColor: "#5A5757",
-        indexLabelPlacement: "outside",
 
+        name:'Credited Amount',
+        indexLabelPlacement: "outside",
+        yValueFormatString: "#,##0.0K",
+        showInLegend: true,
         dataPoints: [
         ]
 
