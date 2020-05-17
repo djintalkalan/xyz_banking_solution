@@ -74,13 +74,23 @@ class Payee extends Component {
             payeeList[index] = payload
             this.state.payeeList[this.state.payeeList.findIndex(({ payeeId }) => payeeId == payload.payeeId)] = payload
         } else {
-            payeeList.push(payload)
-            this.state.payeeList.push(payload)
+            let found = false
+            payeeList.some((item, index) => {
+                if (item.accountNumber == payload.accountNumber && item.customerId == this.props.userDataReducer.customerId) {
+                    alert("An Payee with this account number already exist")
+                    found = true
+                    return true
+                }
+            })
+            if (found == false) {
+                payeeList.push(payload)
+                this.state.payeeList.push(payload)
+            }
         }
-        console.log(JSON.stringify(payeeList))
-        localStorage.setItem(Constants.PAYEE_KEY, JSON.stringify(payeeList))
-        this.closePayeeModal()
-
+            console.log(JSON.stringify(payeeList))
+            localStorage.setItem(Constants.PAYEE_KEY, JSON.stringify(payeeList))
+            this.closePayeeModal()
+        
 
     }
 
