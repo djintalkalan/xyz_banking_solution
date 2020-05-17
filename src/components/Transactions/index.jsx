@@ -5,6 +5,7 @@ import { history } from '../../routes';
 import CanvasJSReact from '../../assets/canvasjs.react';
 import { withRouter } from 'react-router-dom';
 import TransactionsList from '../../constants/TransactionsList';
+import moment from 'moment'
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
 
@@ -66,7 +67,7 @@ class Transactions extends Component {
                                         {
                                             this.state.transactionList.reverse().map((item, index) => (
                                                 <tr>
-                                                    <th scope="row">{item.date}</th>
+                                                    <th scope="row">{moment(item.date).format("DD MMM YYYY")}</th>
                                                     <td>{item.baneficiary}</td>
                                                     <td>{item.amount}</td>
                                                     <td>{item.transactionType}</td>
