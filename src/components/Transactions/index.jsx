@@ -23,14 +23,19 @@ class Transactions extends Component {
 
     componentWillMount() {
         console.log("HISTORY:-", this.props.location)
+        try {
 
-        const transactionList = TransactionsList.filter((item, index) => {
-            return item.accountId == this.props.location.state.id
-        })
+            const transactionList = TransactionsList.filter((item, index) => {
+                return item.accountId == this.props.location.state.id
+            })
 
-        console.log(transactionList)
+            console.log(transactionList)
 
-        this.setState({ transactionList })
+            this.setState({ transactionList })
+        }
+        catch (e) {
+            console.log(e)
+        }
 
     }
 
@@ -59,7 +64,7 @@ class Transactions extends Component {
                                     </thead>
                                     <tbody>
                                         {
-                                            this.state.transactionList.map((item, index) => (
+                                            this.state.transactionList.reverse().map((item, index) => (
                                                 <tr>
                                                     <th scope="row">{item.date}</th>
                                                     <td>{item.baneficiary}</td>
